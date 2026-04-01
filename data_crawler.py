@@ -43,46 +43,45 @@ def geminiSummary(newsListText, section_name):
     # Date: 26.04.01
     
     # --- 만약 AI를 쓰고 싶다면 아래 주석을 푸세요 ---
-    # googleApiKey = st.secrets["GOOGLE_API_KEY"]
-    # genai.configure(api_key = googleApiKey)
-    # model = genai.GenerativeModel("gemini-1.5-flash")
+    googleApiKey = st.secrets["GOOGLE_API_KEY"]
+    genai.configure(api_key = googleApiKey)
+    model = genai.GenerativeModel("gemini-1.5-flash")
     
-    # prompt = f"""
-    #     아래 뉴스들을 종합해서 가장 중요한 소식 3가지를 요약해줘.
-    #     반드시 아래의 JSON 리스트 형식으로만 응답해. 
-    #     다른 설명은 생략해.
+    prompt = f"""
+        아래 뉴스들을 종합해서 가장 중요한 소식 3가지를 요약해줘.
+        반드시 아래의 JSON 리스트 형식으로만 응답해. 
+        다른 설명은 생략해.
         
-    #     [
-    #       {{"title": "구체적인 소식 제목1", "content": "요약 문장1"}},
-    #       {{"title": "구체적인 소식 제목2", "content": "요약 문장2"}},
-    #       {{"title": "구체적인 소식 제목3", "content": "요약 문장3"}}
-    #     ]
+        [
+          {{"title": "구체적인 소식 제목1", "content": "요약 문장1"}},
+          {{"title": "구체적인 소식 제목2", "content": "요약 문장2"}},
+          {{"title": "구체적인 소식 제목3", "content": "요약 문장3"}}
+        ]
         
-    #     뉴스 내용:
-    #     {newsListText}
-    # """
+        뉴스 내용:
+        {newsListText}
+    """
     
-    # try:
-    #     response = model.generate_content(prompt).text
-    #     # JSON 문자열 정제 (백틱이나 줄바꿈 제거)
-    #     jsonResponse = (
-    #         response
-    #             .replace(r"```json", "")
-    #             .replace("\n", "")
-    #             .replace("```", "")
-    #             .replace("  ", "")
-    #             .replace("    ", "")
-    #             .strip()
-    #     )
-    #     return json.loads(jsonResponse)
+    try:
+        response = model.generate_content(prompt).text
+        # JSON 문자열 정제 (백틱이나 줄바꿈 제거)
+        jsonResponse = (
+            response
+                .replace(r"```json", "")
+                .replace("\n", "")
+                .replace("```", "")
+                .replace("  ", "")
+                .replace("    ", "")
+                .strip()
+        )
+        return json.loads(jsonResponse)
     
-    # except Exception as e:
-    #     print(f"❌ Gemini API 에러 혹은 쿼터 초과: {e}")
-    #     # 에러가 나면 여기서 '섹션에 맞는' 가짜 데이터를 리턴!
-    #     return generateMockData(section_name)
+    except Exception as e:
+        print(f"❌ Gemini API 에러 혹은 쿼터 초과: {e}")
+        # 에러가 나면 여기서 '섹션에 맞는' 가짜 데이터를 리턴!
+        return generateMockData(section_name)
     
-    # --- 지금은 AI를 안 쓰니까 바로 가짜 데이터로 연결 ---
-    return generateMockData(section_name)
+    # return generateMockData(section_name)
 
 def updateNewsSummary(section_name, search_keyword):
     # > 뉴스 업데이트 작업
