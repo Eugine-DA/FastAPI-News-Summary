@@ -33,10 +33,14 @@ def insert_data(database, table, category, values):
         print(f"> DB Insert error: {e}")
 
 def get_db_data(category):
-    # > 특정 카테고리의 최신 데이터 호출
+    # > 데이터 호출 전, 테이블이 있는지 한 번 더 확인 (클라우드용 안전장치)
+    init_db() 
     conn = sqlite3.connect("news.db")
     cursor = conn.cursor()
-    cursor.execute("SELECT content, updated_at FROM summary WHERE category = ? ORDER BY id DESC LIMIT 1", (category,))
-    row = cursor.fetchone()
+    try:
+        cursor.execute("SELECT content, updated_at FROM summary WHERE category = ? ORDER BY id DESC LIMIT 1", (category,))
+        row = cursor.fetchone()
+    except sqlite3.OperationalError:
+        row = None
     conn.close()
     return row

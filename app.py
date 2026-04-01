@@ -2,6 +2,7 @@ import streamlit as st
 import json
 from datetime import datetime, timedelta
 import database_manager as dm
+import data_crawler as dc
 
 # 1. 페이지 설정
 st.set_page_config(page_title="AI 뉴스 대시보드", layout="wide")
@@ -33,6 +34,15 @@ with st.sidebar:
     row = dm.get_db_data(option)
     
     # 3. 업데이트 시간 계산
+    if not row:
+        with st.spinner(f"'{option}' 섹션의 첫 데이터를 수집 중입니다... (약 10초 소요)"):
+            # 검색 키워드 매핑 (main.py에 있던 걸 가져오거나 간단히 처리)
+            keywords = {
+                "속보": '속보 | 실시간', "IT/과학": "IT | 테크", 
+                "정치": "정치", "경제": "경제", "세계": "세계"
+            }
+            dc.updateNewsSummary(option, keywords.get(option, option))
+            row = dm.get_db_data(option) # 다시 가져오기    
     if row:
         try:
             db_time = datetime.strptime(row[1], '%Y-%m-%d %H:%M:%S')
