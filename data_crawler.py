@@ -42,7 +42,7 @@ def getTodayNewsData(query):
 def geminiSummary(newsListText, section_name):
     googleApiKey = st.secrets["GOOGLE_API_KEY"]
     genai.configure(api_key=googleApiKey)
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    model = genai.GenerativeModel("gemini-2.5-flash")
     
     prompt = f"""
         당신은 전문 뉴스 요약가입니다. 아래 뉴스들을 종합해서 가장 중요한 소식 3가지를 요약해줘.
