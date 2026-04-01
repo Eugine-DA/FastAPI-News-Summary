@@ -4,6 +4,7 @@ import google.generativeai as genai
 from datetime import datetime
 import database_manager as dm
 import streamlit as  st
+import re
 
 def getTodayNewsData(query):
     # > 뉴스 데이터 추출
@@ -39,49 +40,41 @@ def getTodayNewsData(query):
     return news_list
 
 def geminiSummary(newsListText, section_name):
-    # > 제미나이 요약 함수
-    # Date: 26.04.01
-    
-    # --- 만약 AI를 쓰고 싶다면 아래 주석을 푸세요 ---
     googleApiKey = st.secrets["GOOGLE_API_KEY"]
-    genai.configure(api_key = googleApiKey)
+    genai.configure(api_key=googleApiKey)
     model = genai.GenerativeModel("gemini-1.5-flash")
     
     prompt = f"""
-        아래 뉴스들을 종합해서 가장 중요한 소식 3가지를 요약해줘.
-        반드시 아래의 JSON 리스트 형식으로만 응답해. 
-        다른 설명은 생략해.
-        
+        당신은 전문 뉴스 요약가입니다. 아래 뉴스들을 종합해서 가장 중요한 소식 3가지를 요약해줘.
+        반드시 아래의 JSON 리스트 형식으로만 응답해. 다른 설명은 절대 하지마.
         [
-          {{"title": "구체적인 소식 제목1", "content": "요약 문장1"}},
-          {{"title": "구체적인 소식 제목2", "content": "요약 문장2"}},
-          {{"title": "구체적인 소식 제목3", "content": "요약 문장3"}}
+          {{"title": "제목", "content": "내용"}},
+          {{"title": "제목", "content": "내용"}},
+          {{"title": "제목", "content": "내용"}}
         ]
-        
         뉴스 내용:
         {newsListText}
     """
     
     try:
         response = model.generate_content(prompt).text
-        # JSON 문자열 정제 (백틱이나 줄바꿈 제거)
-        jsonResponse = (
-            response
-                .replace(r"```json", "")
-                .replace("\n", "")
-                .replace("```", "")
-                .replace("  ", "")
-                .replace("    ", "")
-                .strip()
-        )
+        
+        # 1. 정규표현식으로 JSON 형태만 추출 (가장 확실함)
+        match = re.search(r'\[.*\]', response, re.DOTALL)
+        if match:
+            jsonResponse = match.group(0)
+        else:
+            jsonResponse = response # 실패 시 기존 방식 유지
+            
+        # 2. 불필요한 백틱 등 제거
+        jsonResponse = jsonResponse.replace("```json", "").replace("```", "").strip()
+        
         return json.loads(jsonResponse)
     
     except Exception as e:
-        print(f"❌ Gemini API 에러 혹은 쿼터 초과: {e}")
-        # 에러가 나면 여기서 '섹션에 맞는' 가짜 데이터를 리턴!
+        st.error(f"Gemini API 에러 발생: {e}") # 사용자에게 에러 알림
+        print(f"❌ Gemini API 에러: {e}")
         return generateMockData(section_name)
-    
-    # return generateMockData(section_name)
 
 def updateNewsSummary(section_name, search_keyword):
     # > 뉴스 업데이트 작업
