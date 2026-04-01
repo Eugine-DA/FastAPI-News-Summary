@@ -150,8 +150,8 @@ def generateMockData(section_name):
 
 def getNaverImages(query):
     # > 이미지 검색 API
-    client_id = "pciQ0eZhQOIcCHn6E4Rr"
-    client_secret = "vk8Yk9VYhq"
+    client_id = st.secrets["NAVER_CLIENT_ID"]
+    client_secret = st.secrets["NAVER_CLIENT_SECRET"]
     url = "https://openapi.naver.com/v1/search/image"
     headers = {
         "X-Naver-Client-Id": client_id,
