@@ -77,10 +77,9 @@ def geminiSummary(newsListText, section_name):
         return generateMockData(section_name)
 
 def updateNewsSummary(section_name, search_keyword):
-    # > 뉴스 업데이트 작업
     print(f"🚀 [Job] {section_name} 업데이트 시작 (키워드: {search_keyword})")
     try:
-        ## News 데이터 처리
+        ## 1. News 데이터 가져오기
         raw_news = getTodayNewsData(search_keyword)
         titles_only = [news['title'] for news in raw_news]
         
@@ -88,13 +87,20 @@ def updateNewsSummary(section_name, search_keyword):
             print(f"⚠️ {section_name}에 오늘자 뉴스가 없습니다.")
             return
 
+        ## 2. Gemini 요약
         summary_data = geminiSummary(titles_only, section_name)
         
-        ## Image 처리
+        ## 3. Image 처리 (안전하게 감싸기)
         for item in summary_data:
-            imageURL = getNaverImages(item["title"])
-            item["image"] = imageURL
+            try:
+                # 검색어가 너무 길면 에러 날 수 있으니 앞부분만 쓰거나 예외처리
+                imageURL = getNaverImages(item["title"])
+                item["image"] = imageURL if imageURL else "https://via.placeholder.com/150"
+            except Exception as img_e:
+                print(f"  > ⚠️ {section_name} 이미지 검색 실패: {img_e}")
+                item["image"] = "https://via.placeholder.com/150" # 기본 이미지
 
+        ## 4. DB 저장
         dm.insert_data(
             database="news",
             table="summary", 
@@ -102,8 +108,10 @@ def updateNewsSummary(section_name, search_keyword):
             values=summary_data
         )
         print(f"✅ {section_name} 저장 완료!")
+
     except Exception as e:
-        print(f"> Fail {section_name}: {e}")
+        # 이 로그가 찍히는지 'Manage App'에서 확인하세요!
+        print(f"> Fail {section_name} 전체 프로세스 에러: {e}")
 
 def generateMockData(section_name):
     # > 섹션별 맞춤형 목업 데이터 생성

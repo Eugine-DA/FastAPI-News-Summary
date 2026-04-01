@@ -38,8 +38,11 @@ with st.sidebar:
         with st.spinner(f"'{option}' 섹션의 첫 데이터를 수집 중입니다... (약 10초 소요)"):
             # 검색 키워드 매핑 (main.py에 있던 걸 가져오거나 간단히 처리)
             keywords = {
-                "속보": '속보 | 실시간', "IT/과학": "IT | 테크", 
-                "정치": "정치", "경제": "경제", "세계": "세계"
+                "속보": '속보 | 실시간', 
+                "IT/과학": "IT | 테크", 
+                "정치": "정치", 
+                "경제": "경제 | 증시 | 금융 | 물가", 
+                "세계": "세계"
             }
             dc.updateNewsSummary(option, keywords.get(option, option))
             row = dm.get_db_data(option) # 다시 가져오기    
