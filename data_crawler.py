@@ -167,7 +167,7 @@ def getNaverImages(query):
         if response.status_code == 200:
             data = response.json()
             if data['items']:
-                return data['items'][0]['link']
+                return data['items'][0]['thumbnail']
     except:
         pass
     return "https://via.placeholder.com/300x200?text=No+Image"
