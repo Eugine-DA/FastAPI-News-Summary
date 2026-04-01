@@ -3,6 +3,7 @@ import json
 from datetime import datetime, timedelta
 import database_manager as dm
 import data_crawler as dc
+import pytz
 
 # 1. 페이지 설정
 st.set_page_config(page_title="AI 뉴스 대시보드", layout="wide")
@@ -17,10 +18,9 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # --- 사이드바 ---
-# --- 사이드바 ---
 with st.sidebar:
     # 1. 오늘 날짜 표시
-    current_date = datetime.now().strftime("%Y.%m.%d")
+    current_date = datetime.now(pytz.timezone('Asia/Seoul')).strftime("%Y.%m.%d")
     st.title(current_date)
     
     # 2. 데이터 먼저 호출 (시간을 미리 알아내기 위해)
