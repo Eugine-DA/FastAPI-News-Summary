@@ -24,9 +24,10 @@ async def lifespan(app: FastAPI):
         # ★ 핵심 포인트 1: args에 [섹션명, 검색키워드] 2개를 리스트로 묶어 전달해야 함
         scheduler.add_job(
             dc.updateNewsSummary, 
-            'interval', 
-            hours=3, 
-            args=[section_name, search_keyword] # 인자 2개!
+            'cron',          # 특정 시각에 실행하는 방식
+            hour=9,          # 9시
+            minute=0,        # 0분
+            args=[section_name, search_keyword]
         )
         
         # ★ 핵심 포인트 2: 즉시 실행할 때도 인자 2개를 다 넣어야 함
