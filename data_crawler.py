@@ -3,11 +3,12 @@ import json
 import google.generativeai as genai
 from datetime import datetime
 import database_manager as dm
+import streamlit as  st
 
 def getTodayNewsData(query):
     # > 뉴스 데이터 추출
-    client_id = "pciQ0eZhQOIcCHn6E4Rr"
-    client_secret = "vk8Yk9VYhq"    
+    client_id = st.secrets["NAVER_CLIENT_ID"]
+    client_secret = st.secrets["NAVER_CLIENT_SECRET"]
     api_url = "https://openapi.naver.com/v1/search/news.json"
     headers = {
         "X-Naver-Client-Id": client_id,
@@ -42,7 +43,7 @@ def geminiSummary(newsListText, section_name):
     # Date: 26.04.01
     
     # --- 만약 AI를 쓰고 싶다면 아래 주석을 푸세요 ---
-    # googleApiKey = "AIzaSyAHssgM5AZXjRY5RDLT4yXtSFXYNlgHYHw"
+    # googleApiKey = st.secrets["GOOGLE_API_KEY"]
     # genai.configure(api_key = googleApiKey)
     # model = genai.GenerativeModel("gemini-1.5-flash")
     
