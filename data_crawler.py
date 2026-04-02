@@ -25,7 +25,7 @@ def getTodayNewsData(query):
         headers=headers, 
         params=params
     )
-    today_str = datetime.now().strftime("%d %b %Y") # API 날짜 형식과 맞춤
+    today_str = datetime.now().strftime("%d %b %Y") 
     news_list = []
     
     if response.status_code == 200:
@@ -59,27 +59,27 @@ def geminiSummary(newsListText, section_name):
     try:
         response = model.generate_content(prompt).text
         
-        # 1. 정규표현식으로 JSON 형태만 추출 (가장 확실함)
+        ## 정규표현식으로 JSON 형태만 추출
         match = re.search(r'\[.*\]', response, re.DOTALL)
         if match:
             jsonResponse = match.group(0)
         else:
             jsonResponse = response # 실패 시 기존 방식 유지
             
-        # 2. 불필요한 백틱 등 제거
+        ## 불필요한 백틱 등 제거
         jsonResponse = jsonResponse.replace("```json", "").replace("```", "").strip()
         
         return json.loads(jsonResponse)
     
     except Exception as e:
-        st.error(f"Gemini API 에러 발생: {e}") # 사용자에게 에러 알림
+        st.error(f"Gemini API 에러 발생: {e}") 
         print(f"❌ Gemini API 에러: {e}")
         return generateMockData(section_name)
 
 def updateNewsSummary(section_name, search_keyword):
     print(f"🚀 [Job] {section_name} 업데이트 시작 (키워드: {search_keyword})")
     try:
-        ## 1. News 데이터 가져오기
+        ## News 데이터 가져오기
         raw_news = getTodayNewsData(search_keyword)
         titles_only = [news['title'] for news in raw_news]
         
@@ -87,20 +87,20 @@ def updateNewsSummary(section_name, search_keyword):
             print(f"⚠️ {section_name}에 오늘자 뉴스가 없습니다.")
             return
 
-        ## 2. Gemini 요약
+        ## Gemini 요약
         summary_data = geminiSummary(titles_only, section_name)
         
-        ## 3. Image 처리 (안전하게 감싸기)
+        ## Image 처리
         for item in summary_data:
             try:
-                # 검색어가 너무 길면 에러 날 수 있으니 앞부분만 쓰거나 예외처리
+                ## 검색어가 너무 길면 에러 날 수 있으니 앞부분만 쓰거나 예외처리
                 imageURL = getNaverImages(item["title"])
                 item["image"] = imageURL if imageURL else "https://via.placeholder.com/150"
             except Exception as img_e:
                 print(f"  > ⚠️ {section_name} 이미지 검색 실패: {img_e}")
-                item["image"] = "https://via.placeholder.com/150" # 기본 이미지
+                item["image"] = "https://via.placeholder.com/150" 
 
-        ## 4. DB 저장
+        ## DB 저장
         dm.insert_data(
             database="news",
             table="summary", 
@@ -110,7 +110,6 @@ def updateNewsSummary(section_name, search_keyword):
         print(f"✅ {section_name} 저장 완료!")
 
     except Exception as e:
-        # 이 로그가 찍히는지 'Manage App'에서 확인하세요!
         print(f"> Fail {section_name} 전체 프로세스 에러: {e}")
 
 def generateMockData(section_name):
@@ -144,9 +143,7 @@ def generateMockData(section_name):
             {"title": "글로벌 빅테크 경쟁 격화... 일본 정부 'AI 인프라' 집중 투자", "content": "일본 정부가 인공지능 주도권을 확보하기 위해 글로벌 빅테크 기업들과 협력하여 대규모 AI 전용 인프라 구축에 수조 원을 투입합니다."}
         ]
     }
-    
-    # 해당 섹션이 없으면 기본값(IT/과학 뉴스) 반환
-    return mock_db.get(section_name, mock_db["IT/과학"])
+    return mock_db.get(section_name, mock_db["IT/과학"]) # 해당 섹션이 없으면 기본값(IT/과학 뉴스) 반환
 
 def getNaverImages(query):
     # > 이미지 검색 API

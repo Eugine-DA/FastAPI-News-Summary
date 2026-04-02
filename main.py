@@ -11,7 +11,6 @@ async def lifespan(app: FastAPI):
     
     scheduler = BackgroundScheduler()
     
-    # { "섹션명": "검색 키워드" }
     target_sections = {
         "속보": '속보 | 실시간 | "단독"',
         "IT/과학": "IT | 과학 | 테크 | AI | 반도체",
@@ -21,17 +20,14 @@ async def lifespan(app: FastAPI):
     }
     
     for section_name, search_keyword in target_sections.items():
-        # ★ 핵심 포인트 1: args에 [섹션명, 검색키워드] 2개를 리스트로 묶어 전달해야 함
         scheduler.add_job(
             dc.updateNewsSummary, 
-            'cron',          # 특정 시각에 실행하는 방식
-            hour=9,          # 9시
-            minute=0,        # 0분
+            'cron',          # 특정 시각에 실행
+            hour=9,          
+            minute=0,        
             args=[section_name, search_keyword]
         )
-        
-        # ★ 핵심 포인트 2: 즉시 실행할 때도 인자 2개를 다 넣어야 함
-        dc.updateNewsSummary(section_name, search_keyword) # 인자 2개!
+        dc.updateNewsSummary(section_name, search_keyword)
     
     scheduler.start()
     yield
@@ -41,5 +37,5 @@ app = FastAPI(lifespan=lifespan)
 
 @app.get("/api/news_summary")
 def get_all_summary():
-    # 간단하게 DB 확인용 API (실제 서비스는 Streamlit 이용)
+    # DB 확인용 API
     return {"status": "success", "message": "Backend is running!"}
